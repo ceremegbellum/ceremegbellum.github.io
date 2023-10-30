@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Cere-MEG-Bellum (CMB) Package &#8212; Cere-MEG-Bellum  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css?v=9afac83c" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">
+          Cere-MEG-Bellum</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="https://github.com/jasmainak/cbm">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Cere-MEG-Bellum (CMB) Package</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#for-martinos-users">For Martinos users</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#running-the-example">Running the example</a></li>
+<li><a class="reference internal" href="#usage-of-the-docker-container">Usage of the Docker Container</a></li>
+<li><a class="reference internal" href="#cite">Cite</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/index.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <p><a class="reference external" href="https://pypi.org/project/cmb/"><img alt="PyPI" src="https://badge.fury.io/py/cmb.svg?label=PyPI%20downloads" /></a> <a class="reference external" href="https://github.com/jasmainak/cbm/actions/workflows/ci.yml"><img alt="GH-CI" src="https://github.com/jasmainak/cbm/actions/workflows/ci.yml/badge.svg?branch=main" /></a></p>
+<section id="cere-meg-bellum-cmb-package">
+<h1>Cere-MEG-Bellum (CMB) Package<a class="headerlink" href="#cere-meg-bellum-cmb-package" title="Link to this heading">¶</a></h1>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
+<p>To install the latest stable version of CMB, you can use <a class="reference external" href="https://pip.pypa.io/en/stable/">pip</a> in a terminal:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>cmb
+</pre></div>
+</div>
+<section id="for-martinos-users">
+<h3>For Martinos users<a class="headerlink" href="#for-martinos-users" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Create new conda environment with correct version of Python:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>&lt;your-environment-name&gt;<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.8
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>clone git repo:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:jasmainak/cbm.git
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>cbm/
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Activate the new environment:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>&lt;your-environment-name&gt;
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>install ceremegbellum package (note it may take up to 2 GB space):</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--no-cache-dir
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>setup pre-compiled freesurfer (needed for segmentation):</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>setfsvers
+$<span class="w"> </span>setupfs
+</pre></div>
+</div>
+</section>
+</section>
+<section id="running-the-example">
+<h2>Running the example<a class="headerlink" href="#running-the-example" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Run example.py in examples folder. If connecting with remote desktop, mayavi will likely fail to render for graphics hardware reasons so then view needs to be set to ‘flatmap’ in plot_cerebellum_data() (which is the default). If at site, all viewing options should work.</p></li>
+<li><p>Once you’ve confirmed that example.py runs until the end, you know the installation is successful and you can start using it for your own data. This is most easily done by modifying the example.py script by setting the paths to subject data to your own subject data.</p></li>
+</ol>
+</section>
+<section id="usage-of-the-docker-container">
+<h2>Usage of the Docker Container<a class="headerlink" href="#usage-of-the-docker-container" title="Link to this heading">¶</a></h2>
+<p>before building the image please place in this folder the freesurfer archive ‘freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz’ along with the freesurfer license file ‘license.txt’.</p>
+<p>Subsequently build the docker image with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>mne-tools/cmb:v0.01<span class="w"> </span>.
+</pre></div>
+</div>
+<p>and run it with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-ti<span class="w"> </span>-v<span class="w"> </span>&lt;YOUR<span class="w"> </span>SUBJECTS<span class="w"> </span>DIR&gt;:/workspace/subjects<span class="w"> </span>-v<span class="w"> </span>&lt;YOUR<span class="w"> </span>PROCESSED<span class="w"> </span>nnUNet<span class="w"> </span>DIR&gt;:/workspace/nnUNet<span class="w"> </span>-v<span class="w"> </span>&lt;YOUR<span class="w"> </span>ceremegbellum<span class="w"> </span>GIT<span class="w"> </span>DIR&gt;:/workspace/ceremegbellum<span class="w"> </span>--name<span class="w"> </span>CMB<span class="w"> </span>mne-tools/cmb:v0.01
+</pre></div>
+</div>
+<p>It is convinient to install CMB for development directly from the local repository. Change the directory to ‘/workspace/ceremegbellum’ in the CLI of the Docker Container and run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="cite">
+<h2>Cite<a class="headerlink" href="#cite" title="Link to this heading">¶</a></h2>
+<p>1. Samuelsson J G , Rosen B, Hamalainen M S. <em>Automatic Reconstruction of
+Cerebellar Cortex from Standard MRI Using Diffeomorphic Registration of a
+High-Resolution Template (ARCUS).</em> bioRxiv 2020.11.30.405522;
+doi: <a class="reference external" href="https://doi.org/10.1101/2020.11.30.405522">https://doi.org/10.1101/2020.11.30.405522</a></p>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, John Samuelsson.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
