@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cmb.source_space &#8212; Cere-MEG-Bellum  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css?v=9afac83c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=fd10adb8"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          Cere-MEG-Bellum</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../auto_examples/index.html">Examples</a></li>
+                <li><a href="../../api.html">API</a></li>
+                <li><a href="https://github.com/ceremegbellum/cmb/">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for cmb.source_space</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+<span class="c1"># Authors: John G Samuelson &lt;johnsam@mit.edu&gt;</span>
+<span class="c1">#          Christoph Dinh &lt;christoph.dinh@brain-link.de&gt;</span>
+<span class="c1"># Created: November, 2021</span>
+<span class="c1"># License: MIT</span>
+<span class="c1"># ---------------------------------------------------------------------------</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">nibabel</span> <span class="k">as</span> <span class="nn">nib</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">op</span>
+
+<span class="kn">from</span> <span class="nn">.helpers</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.visualization</span> <span class="kn">import</span> <span class="n">plot_sagittal</span>
+
+
+<span class="k">def</span> <span class="nf">print_fs_surf</span><span class="p">(</span><span class="n">rr</span><span class="p">,</span> <span class="n">tris</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">mirror</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert to RAS coords and print surface to be plotted with Freeview</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fsVox2RAS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">128</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">128</span><span class="p">],</span>
+                            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">128</span><span class="p">]])</span><span class="o">.</span><span class="n">T</span>
+<span class="c1">#    fsVox2RAS = np.array([[1, 0, 0, 128], [0, 0,  1, -128],</span>
+<span class="c1">#                            [0, -1, 0, 128]]).T</span>
+<span class="c1">#    fsVox2RAS = np.array([[-0.25, 0, 0, 80], [0, 0,  0.25, -110],</span>
+<span class="c1">#                            [0, -0.25, 0, 110]]).T</span>
+
+    <span class="n">fs_vox</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">rr</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">rr</span><span class="p">),</span><span class="mi">1</span><span class="p">))))</span>
+    <span class="n">ras</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fs_vox</span><span class="p">,</span> <span class="n">fsVox2RAS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mirror</span><span class="p">:</span>
+        <span class="n">ras</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span>  <span class="o">-</span><span class="n">ras</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># Note this is for MNE which mirrors the source space - remove this for alignment with RAS freeview</span>
+    <span class="n">nib</span><span class="o">.</span><span class="n">freesurfer</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">write_geometry</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">ras</span><span class="p">,</span> <span class="n">tris</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">keep_only_biggest_region</span><span class="p">(</span><span class="n">vol</span><span class="p">,</span> <span class="n">region_removal_limit</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">print_progress</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Keeps only the biggest connected region of each unique value in vol. </span>
+<span class="sd">    If one smaller region is greater than region_removal_limit*len(biggest_region),</span>
+<span class="sd">    then do not remove it (set this to &gt;1 if you want to definitely remove all </span>
+<span class="sd">    smaller regions). The removed regions are interpolated by typevalue of</span>
+<span class="sd">    neighbors (spreading). Value 0 is considered background and not examined.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">connected_regions</span> <span class="o">=</span> <span class="n">find_connected_regions</span><span class="p">(</span><span class="n">vol</span><span class="p">,</span> <span class="n">print_progress</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">neighbors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">27</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">print_progress</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">connected_regions</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;label &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">connected_regions</span><span class="p">[</span><span class="n">label</span><span class="p">])):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">connected_regions</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">k</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">connected_regions</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">biggest_region</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">connected_regions</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">connected_regions</span><span class="p">[</span><span class="n">label</span><span class="p">]))])</span>
+        <span class="n">smaller_regions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">connected_regions</span><span class="p">[</span><span class="n">label</span><span class="p">])))</span>
+        <span class="n">smaller_regions</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">biggest_region</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">smaller_region</span> <span class="ow">in</span> <span class="n">smaller_regions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">connected_regions</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">smaller_region</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">region_removal_limit</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">connected_regions</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">biggest_region</span><span class="p">]):</span>
+                <span class="n">smaller_regions</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">smaller_region</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Found a separate region for label &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; that is &gt; &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">region_removal_limit</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="si">% o</span><span class="s1">f biggest region. Skipping.&#39;</span><span class="p">)</span>
+        <span class="n">voxels_in_smaller_regions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[]])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">smaller_regions</span><span class="p">:</span>
+            <span class="n">voxels_in_smaller_regions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">voxels_in_smaller_regions</span><span class="p">,</span> <span class="n">connected_regions</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">k</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">voxels_in_smaller_regions</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">vox</span> <span class="ow">in</span> <span class="n">voxels_in_smaller_regions</span><span class="p">:</span>
+                <span class="n">all_neighbors</span> <span class="o">=</span> <span class="n">neighbors</span><span class="o">+</span><span class="n">vox</span>
+                <span class="n">all_neighbors</span> <span class="o">=</span> <span class="n">all_neighbors</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">all_neighbors</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vol</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">all_neighbors</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+                <span class="n">val_neighbors</span> <span class="o">=</span> <span class="n">vol</span><span class="p">[</span><span class="n">all_neighbors</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">all_neighbors</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">all_neighbors</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]]</span>
+                <span class="n">val_neighbors</span> <span class="o">=</span> <span class="n">val_neighbors</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">val_neighbors</span> <span class="o">==</span> <span class="n">vol</span><span class="p">[</span><span class="n">vox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vox</span><span class="p">[</span><span class="mi">2</span><span class="p">]])]</span> <span class="c1"># Remove label val to make sure it changes label</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_neighbors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">val_neighbors</span><span class="p">)</span>
+                    <span class="n">type_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">print_progress</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Replacing &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">vox</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;, old val: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">vol</span><span class="p">[</span><span class="n">vox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vox</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span><span class="o">+</span><span class="s1">&#39; new val: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">type_val</span><span class="p">))</span>
+                    <span class="n">vol</span><span class="p">[</span><span class="n">vox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vox</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">type_val</span>
+                    <span class="n">voxels_in_smaller_regions</span> <span class="o">=</span> <span class="n">voxels_in_smaller_regions</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">voxels_in_smaller_regions</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">vox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                                     <span class="n">voxels_in_smaller_regions</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">vox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+                                                                                     <span class="n">voxels_in_smaller_regions</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">vox</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">vol</span>
+
+
+<span class="k">def</span> <span class="nf">setup_cerebellum_source_space</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">cmb_path</span><span class="p">,</span>
+                                  <span class="n">cerebellum_subsampling</span><span class="o">=</span><span class="s1">&#39;sparse&#39;</span><span class="p">,</span>
+                                  <span class="n">calc_nn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">print_fs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mirror</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">debug_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets up the cerebellar surface source space. </span>
+<span class="sd">    </span>
+<span class="sd">    Requires cerebellum geometry file to be downloaded. Requires precomputed cerebellar segmentation </span>
+<span class="sd">    (cmbseg.nii.gz) located in subjects_dir/subject/mri. Saves a freesurfer file for both cerebellar </span>
+<span class="sd">    hemispheres (both.cerebellum) in subjects_dir/subject/surf. </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subjects_dir : str</span>
+<span class="sd">        Subjects directory.</span>
+<span class="sd">    subject : str</span>
+<span class="sd">        Subject name.</span>
+<span class="sd">    cerb_dir : str</span>
+<span class="sd">        Path to cerebellum folder.</span>
+<span class="sd">    calc_nn: Boolean</span>
+<span class="sd">        If True, it will calculate the normals of the cerebellum source space.</span>
+<span class="sd">    print_fs : Boolean</span>
+<span class="sd">        If True, it will print an fs file of the cerebellar source space that can be viewed with e.g. freeview.</span>
+<span class="sd">    plot : Boolean</span>
+<span class="sd">        If True, will plot sagittal cross-sectional plots of the cerebellar source space suposed on subject MR data.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    subj_cerb: dictionary</span>
+<span class="sd">        Dictionary containing geometry data: vertex positions (rr), faces (tris) and normals (nn, if calc_nn is True).</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+    <span class="kn">import</span> <span class="nn">ants</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+    <span class="n">cmb_path</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmb_path</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">subjects_dir</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;starting subject &#39;</span><span class="o">+</span><span class="n">subject</span><span class="o">+</span><span class="s1">&#39;...&#39;</span><span class="p">)</span>
+    <span class="c1"># Load data</span>
+    <span class="n">subj_cerb</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">data_dir</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmb_path</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>    
+    <span class="n">cb_data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span><span class="s1">&#39;cerebellum_geo&#39;</span><span class="p">),</span><span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">cerebellum_subsampling</span> <span class="o">==</span> <span class="s1">&#39;full&#39;</span><span class="p">:</span>
+        <span class="n">rr</span> <span class="o">=</span> <span class="n">cb_data</span><span class="p">[</span><span class="s1">&#39;verts_normal&#39;</span><span class="p">]</span>
+        <span class="n">tris</span> <span class="o">=</span> <span class="n">cb_data</span><span class="p">[</span><span class="s1">&#39;faces&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rr</span> <span class="o">=</span> <span class="n">cb_data</span><span class="p">[</span><span class="s1">&#39;dw_data&#39;</span><span class="p">][</span><span class="n">cerebellum_subsampling</span><span class="o">+</span><span class="s1">&#39;_verts&#39;</span><span class="p">]</span>
+        <span class="n">tris</span> <span class="o">=</span> <span class="n">cb_data</span><span class="p">[</span><span class="s1">&#39;dw_data&#39;</span><span class="p">][</span><span class="n">cerebellum_subsampling</span><span class="o">+</span><span class="s1">&#39;_tris&#39;</span><span class="p">]</span>
+        <span class="n">rr</span> <span class="o">=</span> <span class="n">affine_transform</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]),</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">rr</span><span class="p">)</span>
+
+    <span class="n">hr_vol</span> <span class="o">=</span> <span class="n">cb_data</span><span class="p">[</span><span class="s1">&#39;hr_vol&#39;</span><span class="p">]</span>
+    <span class="n">hr_segm</span> <span class="o">=</span> <span class="n">cb_data</span><span class="p">[</span><span class="s1">&#39;parcellation&#39;</span><span class="p">][</span><span class="s1">&#39;volume&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">old_labels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span>  <span class="mi">33</span><span class="p">,</span>  <span class="mi">36</span><span class="p">,</span>  <span class="mi">43</span><span class="p">,</span>  <span class="mi">46</span><span class="p">,</span>  <span class="mi">53</span><span class="p">,</span>  <span class="mi">56</span><span class="p">,</span>  <span class="mi">60</span><span class="p">,</span>  <span class="mi">63</span><span class="p">,</span>  <span class="mi">66</span><span class="p">,</span>  <span class="mi">70</span><span class="p">,</span>  <span class="mi">73</span><span class="p">,</span> <span class="mi">74</span><span class="p">,</span>  <span class="mi">75</span><span class="p">,</span>
+                  <span class="mi">76</span><span class="p">,</span>  <span class="mi">77</span><span class="p">,</span>  <span class="mi">78</span><span class="p">,</span>  <span class="mi">80</span><span class="p">,</span>  <span class="mi">83</span><span class="p">,</span>  <span class="mi">84</span><span class="p">,</span>  <span class="mi">86</span><span class="p">,</span>  <span class="mi">87</span><span class="p">,</span>  <span class="mi">90</span><span class="p">,</span>  <span class="mi">93</span><span class="p">,</span>  <span class="mi">96</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">103</span><span class="p">,</span> <span class="mi">106</span><span class="p">]</span>
+    <span class="n">hr_segm</span> <span class="o">=</span> <span class="n">change_labels</span><span class="p">(</span><span class="n">hr_segm</span><span class="p">,</span> <span class="n">old_labels</span><span class="o">=</span><span class="n">old_labels</span><span class="p">,</span> <span class="n">new_labels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">29</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+
+    <span class="n">mri_dir</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;mri&#39;</span><span class="p">)</span>
+    <span class="n">subj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mri_dir</span><span class="p">,</span> <span class="s1">&#39;orig.mgz&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span>
+    <span class="n">subj_segm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mri_dir</span><span class="p">,</span> <span class="s1">&#39;cmbseg.nii.gz&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span>
+
+    <span class="c1"># Mask cerebellum</span>
+    <span class="n">pad</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">cerb_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">subj_segm</span><span class="p">)</span>
+    <span class="n">cb_range</span> <span class="o">=</span> <span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">subj_segm</span><span class="p">)[</span><span class="n">x</span><span class="p">])</span><span class="o">-</span><span class="n">pad</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)],</span>
+                 <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">subj_segm</span><span class="p">)[</span><span class="n">x</span><span class="p">])</span><span class="o">+</span><span class="n">pad</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]]</span>
+    <span class="n">subj_segm</span> <span class="o">=</span> <span class="n">subj_segm</span><span class="p">[</span><span class="n">cb_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">cb_range</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                              <span class="n">cb_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="n">cb_range</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                              <span class="n">cb_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="p">:</span> <span class="n">cb_range</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">subj_contrast</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">subj</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">subj_contrast</span><span class="p">[</span><span class="n">cerb_coords</span><span class="p">]</span> <span class="o">=</span> <span class="n">subj</span><span class="p">[</span><span class="n">cerb_coords</span><span class="p">]</span>
+    <span class="n">subj_contrast</span> <span class="o">=</span> <span class="n">subj_contrast</span><span class="p">[</span><span class="n">cb_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">cb_range</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                                  <span class="n">cb_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="n">cb_range</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                                  <span class="n">cb_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="p">:</span> <span class="n">cb_range</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting up adaptation to subject... &#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">hr_vol_scaled</span> <span class="o">=</span> <span class="n">hr_vol</span>
+    <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">hr_vol_scaled</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">hr_vol_scaled</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">subj_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">axis</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+    <span class="n">scf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hr_vol_scaled</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hr_vol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span> <span class="n">rr</span><span class="p">[:,</span> <span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">rr</span><span class="p">[:,</span> <span class="n">x</span><span class="p">]</span> <span class="o">*</span> <span class="n">scf</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+    <span class="n">hr_rs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">hr_vol_scaled</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">non_zero_coo_50</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">hr_vol_scaled</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">)[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span>    
+    <span class="n">non_zero_coo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">hr_vol_scaled</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">)[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">hr_rs</span><span class="p">[</span><span class="n">non_zero_coo</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">non_zero_coo</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">non_zero_coo</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> \
+        <span class="n">hr_vol_scaled</span><span class="p">[</span><span class="n">non_zero_coo</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">non_zero_coo</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">non_zero_coo</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]]</span>
+    
+    <span class="c1"># scale labels matrix (by type value vote)</span>
+    <span class="n">hr_label_scaled</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">subj_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">subj_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">subj_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">count_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">subj_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">subj_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">subj_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">100</span><span class="p">))</span>
+    <span class="n">count_matrix</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hr_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hr_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hr_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="n">target_vox</span> <span class="o">=</span> <span class="p">(</span><span class="n">scf</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">count_matrix</span><span class="p">[</span><span class="n">target_vox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">target_vox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">target_vox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">:])))</span>
+                <span class="n">count_matrix</span><span class="p">[</span><span class="n">target_vox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">target_vox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">target_vox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">hr_segm</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">subj_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">subj_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">subj_segm</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="n">votes</span> <span class="o">=</span> <span class="n">count_matrix</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">votes</span> <span class="o">=</span> <span class="n">votes</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">votes</span><span class="p">)]</span>
+                <span class="n">hr_label_scaled</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">votes</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+    
+    <span class="c1"># Correct verts by co-registering lower left posterior and upper right anterior corners</span>
+    <span class="n">correction_vector_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">non_zero_coo_50</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">rr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> 
+                                   <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">non_zero_coo_50</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">rr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">rr</span> <span class="o">=</span> <span class="n">rr</span> <span class="o">+</span> <span class="n">correction_vector_2</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Register</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fitting... &#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">subj_vec</span> <span class="o">=</span> <span class="n">subj_segm</span>
+    <span class="n">hr_vec</span> <span class="o">=</span> <span class="n">hr_label_scaled</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fitting labels... &#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">subj_label_ants</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">subj_vec</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+    <span class="n">hr_label_ants</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">hr_label_scaled</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">registration</span><span class="p">(</span><span class="n">fixed</span><span class="o">=</span><span class="n">subj_label_ants</span><span class="p">,</span> <span class="n">moving</span><span class="o">=</span><span class="n">hr_label_ants</span><span class="p">,</span> <span class="n">type_of_transform</span><span class="o">=</span><span class="s1">&#39;SyNCC&#39;</span><span class="p">)</span>
+    <span class="n">def_hr_label</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">apply_transforms</span><span class="p">(</span><span class="n">fixed</span><span class="o">=</span><span class="n">subj_label_ants</span><span class="p">,</span> <span class="n">moving</span><span class="o">=</span><span class="n">hr_label_ants</span><span class="p">,</span>
+                                     <span class="n">transformlist</span><span class="o">=</span><span class="n">reg</span><span class="p">[</span><span class="s1">&#39;fwdtransforms&#39;</span><span class="p">],</span> <span class="n">interpolator</span><span class="o">=</span><span class="s1">&#39;genericLabel&#39;</span><span class="p">)</span>
+    <span class="n">vox_dir</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span> <span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">rr</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]),</span> <span class="s1">&#39;y&#39;</span> <span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">rr</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;z&#39;</span> <span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">rr</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])}</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vox_dir</span><span class="p">)</span>
+    <span class="n">rrw_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ants</span><span class="o">.</span><span class="n">apply_transforms_to_points</span><span class="p">(</span> <span class="mi">3</span><span class="p">,</span> <span class="n">pts</span><span class="p">,</span> <span class="n">reg</span><span class="p">[</span><span class="s1">&#39;invtransforms&#39;</span><span class="p">]))</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fitting contrast... &#39;</span><span class="p">)</span>
+    <span class="n">subj_contrast</span> <span class="o">=</span> <span class="n">subj_contrast</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">subj_contrast</span><span class="p">)</span>
+    <span class="n">hr_rs</span> <span class="o">=</span> <span class="n">hr_rs</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">hr_rs</span><span class="p">)</span>
+    <span class="n">subj_ants</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">subj_contrast</span><span class="p">)</span>
+    <span class="n">hr_rs_ants</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">hr_rs</span><span class="p">)</span>
+    <span class="n">hr_ants</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">apply_transforms</span><span class="p">(</span><span class="n">fixed</span><span class="o">=</span><span class="n">subj_ants</span><span class="p">,</span> <span class="n">moving</span><span class="o">=</span><span class="n">hr_rs_ants</span><span class="p">,</span>
+                                     <span class="n">transformlist</span><span class="o">=</span><span class="n">reg</span><span class="p">[</span><span class="s1">&#39;fwdtransforms&#39;</span><span class="p">])</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">registration</span><span class="p">(</span><span class="n">fixed</span><span class="o">=</span><span class="n">subj_ants</span><span class="p">,</span> <span class="n">moving</span><span class="o">=</span><span class="n">hr_ants</span><span class="p">,</span> <span class="n">type_of_transform</span><span class="o">=</span><span class="s1">&#39;SyNCC&#39;</span><span class="p">)</span>
+    <span class="n">vox_dir</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span> <span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">rrw_0</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]),</span> <span class="s1">&#39;y&#39;</span> <span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">rrw_0</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;z&#39;</span> <span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">rrw_0</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])}</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">vox_dir</span><span class="p">)</span>
+    <span class="n">rrw_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ants</span><span class="o">.</span><span class="n">apply_transforms_to_points</span><span class="p">(</span> <span class="mi">3</span><span class="p">,</span> <span class="n">pts</span><span class="p">,</span> <span class="n">reg</span><span class="p">[</span><span class="s1">&#39;invtransforms&#39;</span><span class="p">]))</span>
+    <span class="n">hr_label_final</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">apply_transforms</span><span class="p">(</span><span class="n">fixed</span><span class="o">=</span><span class="n">subj_ants</span><span class="p">,</span> <span class="n">moving</span><span class="o">=</span><span class="n">def_hr_label</span><span class="p">,</span>
+                                     <span class="n">transformlist</span><span class="o">=</span><span class="n">reg</span><span class="p">[</span><span class="s1">&#39;fwdtransforms&#39;</span><span class="p">],</span> <span class="n">interpolator</span><span class="o">=</span><span class="s1">&#39;genericLabel&#39;</span><span class="p">)</span>
+    
+    <span class="n">rr_p</span> <span class="o">=</span> <span class="n">rrw_1</span><span class="o">+</span><span class="n">cb_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">subj_cerb</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;rr&#39;</span> <span class="p">:</span> <span class="n">rr_p</span><span class="p">})</span>
+    <span class="n">subj_cerb</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;tris&#39;</span> <span class="p">:</span> <span class="n">tris</span><span class="p">})</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done.&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">calc_nn</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Calculating normals on deformed surface...&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">nn_def</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">area_list</span><span class="p">,</span> <span class="n">nan_vertices</span><span class="p">)</span> <span class="o">=</span> <span class="n">calculate_normals</span><span class="p">(</span><span class="n">rr_p</span><span class="p">,</span> <span class="n">tris</span><span class="p">,</span> <span class="n">print_info</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">subj_cerb</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;nn&#39;</span> <span class="p">:</span> <span class="n">nn_def</span><span class="p">})</span>
+        <span class="n">subj_cerb</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;nan_nn&#39;</span> <span class="p">:</span> <span class="n">nan_vertices</span><span class="p">})</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Done.&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Visualize results as sagittal (x=const) cross-sections</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_sagittal</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Warped points in subj vol&#39;</span><span class="p">,</span> <span class="n">rr</span><span class="o">=</span><span class="n">rr_p</span><span class="p">,</span> <span class="n">tris</span><span class="o">=</span><span class="n">tris</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">print_fs</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving cerebellar surface as fs files...&#39;</span><span class="p">)</span>
+        <span class="n">rr_def</span> <span class="o">=</span> <span class="n">rr_p</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span> <span class="n">rr_def</span><span class="p">[:,</span> <span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">rr_p</span><span class="p">[:,</span> <span class="n">x</span><span class="p">]</span>
+        <span class="n">surf_dir</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;surf&#39;</span><span class="p">)</span>
+        <span class="n">print_fs_surf</span><span class="p">(</span><span class="n">rr_def</span><span class="p">,</span> <span class="n">tris</span><span class="p">,</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">surf_dir</span><span class="p">,</span> <span class="s1">&#39;both.cerebellum&#39;</span><span class="p">),</span> <span class="n">mirror</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saved to &#39;</span> <span class="o">+</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">surf_dir</span><span class="p">,</span> <span class="s1">&#39;both.cerebellum&#39;</span><span class="p">))</span>
+        
+    <span class="k">return</span> <span class="n">subj_cerb</span>
+
+
+<span class="k">def</span> <span class="nf">calculate_normals</span><span class="p">(</span><span class="n">rr</span><span class="p">,</span> <span class="n">tris</span><span class="p">,</span> <span class="n">solid_angle_calc</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">obs_point</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">print_info</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Takes rr - an array of position of vertices and tris - indices of vertices that deliniates</span>
+<span class="sd">    triangle face and returns vertex normals based on an (unweighted) average of neighboring face normals.&quot;&quot;&quot;</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">area_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">area</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">count</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">nan_vertices</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rr</span><span class="p">)):</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+    <span class="n">solid_angle</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tris</span><span class="p">:</span>
+        <span class="n">v1</span><span class="o">=</span><span class="n">rr</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],:]</span><span class="o">-</span><span class="n">rr</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],:]</span>
+        <span class="n">v2</span><span class="o">=</span><span class="n">rr</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">],:]</span><span class="o">-</span><span class="n">rr</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],:]</span>
+        <span class="n">nml</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">)</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">area</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">nml</span><span class="p">)</span><span class="o">/</span><span class="mf">2.0</span>
+        <span class="n">area_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+        <span class="n">nn_fc</span> <span class="o">=</span> <span class="n">nml</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">nml</span><span class="p">)</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn_fc</span><span class="p">)</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn_fc</span><span class="p">)</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn_fc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">solid_angle_calc</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+            <span class="n">R1</span> <span class="o">=</span> <span class="n">rr</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">-</span> <span class="n">obs_point</span>
+            <span class="n">R2</span> <span class="o">=</span> <span class="n">rr</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">-</span> <span class="n">obs_point</span>
+            <span class="n">R3</span> <span class="o">=</span> <span class="n">rr</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">-</span> <span class="n">obs_point</span>
+            
+            <span class="n">solid_angle</span> <span class="o">=</span> <span class="n">solid_angle</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R1</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">R2</span><span class="p">,</span><span class="n">R3</span><span class="p">))</span><span class="o">/</span> \
+                <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">R1</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">R2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">R3</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R1</span><span class="p">,</span><span class="n">R2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">R3</span><span class="p">)</span> <span class="o">+</span> \
+                <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R1</span><span class="p">,</span><span class="n">R3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">R2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R2</span><span class="p">,</span><span class="n">R3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">R1</span><span class="p">)))</span>  
+    
+    <span class="k">if</span> <span class="n">solid_angle_calc</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;solid_angle at the point of observation estimated to:&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">solid_angle</span><span class="p">)</span>    
+        
+    <span class="n">nn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">rr</span><span class="p">),</span><span class="mi">3</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">ele</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+        <span class="n">vert_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">ele</span><span class="p">:</span>
+            <span class="n">vert_norm</span> <span class="o">=</span> <span class="n">vert_norm</span> <span class="o">+</span> <span class="n">vec</span>
+        <span class="n">vert_norm</span> <span class="o">=</span> <span class="n">vert_norm</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vert_norm</span><span class="p">)</span>
+        <span class="n">nn</span><span class="p">[</span><span class="n">c</span><span class="p">,:]</span><span class="o">=</span><span class="n">vert_norm</span>
+        
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">ele</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">nn</span><span class="p">[</span><span class="n">c</span><span class="p">,:])</span><span class="o">.</span><span class="n">any</span><span class="p">():</span> <span class="c1">#np.linalg.norm(nn[c,:]) == 0:</span>
+            <span class="n">neighbor_rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">tris</span><span class="o">==</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">tris</span><span class="p">[</span><span class="n">neighbor_rows</span><span class="p">])</span>
+            <span class="n">neighbors</span> <span class="o">=</span> <span class="n">neighbors</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">neighbors</span><span class="o">!=</span><span class="n">c</span><span class="p">)]</span>
+            <span class="n">normal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">nn</span><span class="p">[</span><span class="n">neighbors</span><span class="p">,:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">nn</span><span class="p">[</span><span class="n">c</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">normal</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">normal</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">count</span><span class="o">+</span><span class="mi">1</span>
+            
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">nn</span><span class="p">[</span><span class="n">c</span><span class="p">,:])</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">nan_vertices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            
+    <span class="k">if</span> <span class="n">print_info</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;number of nan normals that have been smoothed = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Remaining NAN normals = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nan_vertices</span><span class="p">)))</span>                
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total surface area: &#39;</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">str</span><span class="p">(</span><span class="n">area</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">nn</span><span class="p">,</span><span class="n">area</span><span class="p">,</span><span class="n">area_list</span><span class="p">,</span><span class="n">nan_vertices</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="setup_full_source_space">
+<a class="viewcode-back" href="../../api.html#cmb.setup_full_source_space">[docs]</a>
+<span class="k">def</span> <span class="nf">setup_full_source_space</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">subjects_dir</span><span class="p">,</span> <span class="n">cerb_dir</span><span class="p">,</span> <span class="n">cerb_subsampling</span><span class="o">=</span><span class="s1">&#39;sparse&#39;</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="s1">&#39;oct6&#39;</span><span class="p">,</span>
+                            <span class="n">plot_cerebellum</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">debug_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sets up a full surface source space where the first element in the list </span>
+<span class="sd">    is the combined cerebral hemishperic source space and the second element</span>
+<span class="sd">    is the cerebellar source space.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subject : str</span>
+<span class="sd">        Subject name.</span>
+<span class="sd">    subjects_dir : str</span>
+<span class="sd">        Subjects directory.</span>
+<span class="sd">    cerb_dir : str</span>
+<span class="sd">        Path to cerebellum folder.</span>
+<span class="sd">    plot_cerebellum : Boolean</span>
+<span class="sd">        If True, will plot sagittal cross-sectional plots of the cerebellar</span>
+<span class="sd">        source space superposed on subject MR data.</span>
+<span class="sd">    spacing : str</span>
+<span class="sd">        The spacing to use for cortex. Can be ``&#39;ico#&#39;`` for a recursively subdivided</span>
+<span class="sd">        icosahedron, ``&#39;oct#&#39;`` for a recursively subdivided octahedron,</span>
+<span class="sd">        or ``&#39;all&#39;`` for all points.</span>
+<span class="sd">    cerb_subsampling : &#39;full&#39; | &#39;sparse&#39; | &#39;dense&#39;</span>
+<span class="sd">        The spacing to use for the cerebellum. Can be either full, sparse or dense.</span>
+
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    src_whole: list</span>
+<span class="sd">        List containing two source space elements: the cerebral cortex and the </span>
+<span class="sd">        cerebellar cortex.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">mne</span>
+<span class="c1">#    from evaler import join_source_spaces</span>
+    <span class="n">cerb_dir</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cerb_dir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">cerb_subsampling</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;full&#39;</span><span class="p">,</span> <span class="s1">&#39;sparse&#39;</span><span class="p">,</span> <span class="s1">&#39;dense&#39;</span><span class="p">],</span> <span class="s2">&quot;cerb_subsampling must be either </span><span class="se">\&#39;</span><span class="s2">full</span><span class="se">\&#39;</span><span class="s2">, </span><span class="se">\&#39;</span><span class="s2">sparse</span><span class="se">\&#39;</span><span class="s2"> or </span><span class="se">\&#39;</span><span class="s2">dense</span><span class="se">\&#39;</span><span class="s2">&quot;</span>
+    <span class="n">src_cort</span> <span class="o">=</span> <span class="n">mne</span><span class="o">.</span><span class="n">setup_source_space</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span> <span class="n">subjects_dir</span><span class="o">=</span><span class="n">subjects_dir</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="n">add_dist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spacing</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+        <span class="n">src_cort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;use_tris&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_cort</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;tris&#39;</span><span class="p">]</span>
+        <span class="n">src_cort</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;use_tris&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_cort</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;tris&#39;</span><span class="p">]</span>
+    <span class="n">cerb_subj_data</span> <span class="o">=</span> <span class="n">setup_cerebellum_source_space</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">cerb_dir</span><span class="p">,</span> <span class="n">calc_nn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cerebellum_subsampling</span><span class="o">=</span><span class="n">cerb_subsampling</span><span class="p">,</span>
+                                                   <span class="n">print_fs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">plot_cerebellum</span><span class="p">,</span> <span class="n">mirror</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">debug_mode</span><span class="o">=</span><span class="n">debug_mode</span><span class="p">)</span>
+    <span class="n">cb_data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">cerb_dir</span><span class="o">+</span><span class="s1">&#39;data/cerebellum_geo&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+    <span class="n">rr</span> <span class="o">=</span> <span class="n">mne</span><span class="o">.</span><span class="n">read_surface</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;surf&#39;</span><span class="p">,</span> <span class="s1">&#39;both.cerebellum&#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">1000</span>
+    <span class="n">src_whole</span> <span class="o">=</span> <span class="n">src_cort</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> 
+    <span class="n">hemi_src</span> <span class="o">=</span> <span class="n">join_source_spaces</span><span class="p">(</span><span class="n">src_cort</span><span class="p">)</span>
+    <span class="n">src_whole</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">hemi_src</span>
+    <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;rr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rr</span>
+    <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;tris&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cerb_subj_data</span><span class="p">[</span><span class="s1">&#39;tris&#39;</span><span class="p">]</span>
+    <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;nn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cerb_subj_data</span><span class="p">[</span><span class="s1">&#39;nn&#39;</span><span class="p">]</span>
+    <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;ntri&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;tris&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;use_tris&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cerb_subj_data</span><span class="p">[</span><span class="s1">&#39;tris&#39;</span><span class="p">]</span>
+    <span class="n">in_use</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">rr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">in_use</span><span class="p">[</span><span class="n">cerb_subj_data</span><span class="p">[</span><span class="s1">&#39;nan_nn&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1">#    in_use = np.zeros(rr.shape[0])</span>
+<span class="c1">#    in_use[cb_data[&#39;dw_data&#39;][cerb_spacing]] = 1</span>
+    <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;inuse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">in_use</span>
+    <span class="k">if</span> <span class="n">cerb_subsampling</span> <span class="o">==</span> <span class="s1">&#39;full&#39;</span><span class="p">:</span>
+        <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;nuse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;inuse&#39;</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;nuse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;inuse&#39;</span><span class="p">]))</span>
+    <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;vertno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;inuse&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;np&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_whole</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;rr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">src_whole</span></div>
+
+
+   
+<span class="k">def</span> <span class="nf">join_source_spaces</span><span class="p">(</span><span class="n">src_orig</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">src_orig</span><span class="p">)</span><span class="o">!=</span><span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input must be two source spaces&#39;</span><span class="p">)</span>
+        
+    <span class="n">src_joined</span><span class="o">=</span><span class="n">src_orig</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">src_joined</span><span class="o">=</span><span class="n">src_joined</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;inuse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;inuse&#39;</span><span class="p">],</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;inuse&#39;</span><span class="p">]))</span>
+    <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;nn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;nn&#39;</span><span class="p">],</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;nn&#39;</span><span class="p">]),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;np&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;np&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_orig</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;np&#39;</span><span class="p">]</span>
+    <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;ntri&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;ntri&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_orig</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;ntri&#39;</span><span class="p">]</span>
+    <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;nuse&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;nuse&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_orig</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;nuse&#39;</span><span class="p">]</span>
+    <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;nuse_tri&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;nuse_tri&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_orig</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;nuse_tri&#39;</span><span class="p">]</span>
+    <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;rr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;rr&#39;</span><span class="p">],</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;rr&#39;</span><span class="p">]),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;tris&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;tris&#39;</span><span class="p">],</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;tris&#39;</span><span class="p">]</span><span class="o">+</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;np&#39;</span><span class="p">]),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1">#    src_joined[&#39;use_tris&#39;] = np.concatenate((src_orig[0][&#39;use_tris&#39;],src_orig[1][&#39;use_tris&#39;]+src_orig[0][&#39;np&#39;]),axis=0)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;use_tris&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;use_tris&#39;</span><span class="p">],</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;use_tris&#39;</span><span class="p">]</span><span class="o">+</span><span class="n">src_orig</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;np&#39;</span><span class="p">]),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="ne">Warning</span><span class="p">(</span><span class="s1">&#39;Failed to concatenate use_tris, use_tris will be put to None. This means you will not be able to visualize&#39;</span><span class="o">+</span>
+                <span class="s1">&#39; the cortex in 3d but can still do all computational operations.&#39;</span><span class="p">)</span>
+        <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;use_tris&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;vertno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">src_joined</span><span class="p">[</span><span class="s1">&#39;inuse&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">src_joined</span>   
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, John Samuelsson.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

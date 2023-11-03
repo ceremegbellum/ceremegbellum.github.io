@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cmb.segmentation &#8212; Cere-MEG-Bellum  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css?v=9afac83c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=fd10adb8"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          Cere-MEG-Bellum</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../auto_examples/index.html">Examples</a></li>
+                <li><a href="../../api.html">API</a></li>
+                <li><a href="https://github.com/ceremegbellum/cmb/">GitHub</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for cmb.segmentation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">op</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">nibabel</span> <span class="k">as</span> <span class="nn">nib</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">from</span> <span class="nn">.helpers</span> <span class="kn">import</span> <span class="n">save_nifti_from_3darray</span><span class="p">,</span> <span class="n">change_labels</span>
+
+
+<div class="viewcode-block" id="segment_cerebellum">
+<a class="viewcode-back" href="../../api.html#cmb.segmentation.segment_cerebellum">[docs]</a>
+<span class="k">def</span> <span class="nf">segment_cerebellum</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">cmb_path</span><span class="p">,</span> <span class="n">debug_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_segmentation</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates segmentation of the cerebellar volume using the nnUnet package. Saves a nifti file to</span>
+<span class="sd">    the specified subjects directory within the MRI subfolder as cmbseg.nii.gz </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subjects_dir : str</span>
+<span class="sd">        Path to Freesurfer subject directory </span>
+<span class="sd">    subject : str </span>
+<span class="sd">        Subject identifier</span>
+<span class="sd">    cmb_path : str</span>
+<span class="sd">        Path to the CereMegBellum module</span>
+<span class="sd">    debug_mode : bool</span>
+<span class="sd">        Whether to run in debug mode</span>
+<span class="sd">    fore_segmentation : bool</span>
+<span class="sd">        Whether to overwrite or skip when existing segmentation is found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">ants</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Doing segmentation...&#39;</span><span class="p">)</span>
+    <span class="n">cmb_fname</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="s1">&#39;mri&#39;</span><span class="p">,</span> <span class="s1">&#39;cmbseg.nii.gz&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cmb_fname</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_segmentation</span><span class="p">:</span>
+        <span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Segmentation file </span><span class="si">{</span><span class="n">cmb_fname</span><span class="si">}</span><span class="s1"> already exists.&#39;</span>
+              <span class="s1">&#39; Skipping segmentation. Please force_segmentation=True if you&#39;</span>
+              <span class="s1">&#39;want to recompute the segmentation.&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">cmb_path</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmb_path</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="n">subjects_dir</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="n">data_dir</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmb_path</span><span class="p">,</span><span class="s1">&#39;data&#39;</span><span class="p">,</span><span class="s1">&#39;segm_folder&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Check that all prerequisite programs are ready </span>
+    <span class="n">nnunet_env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+    <span class="n">nnunet_env</span><span class="p">[</span><span class="s1">&#39;nnUNet_preprocessed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmb_path</span><span class="p">,</span><span class="s1">&#39;nnUNet&#39;</span><span class="p">,</span><span class="s1">&#39;nnUNet_preprocessed&#39;</span><span class="p">)</span>
+    <span class="n">nnunet_env</span><span class="p">[</span><span class="s1">&#39;RESULTS_FOLDER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmb_path</span><span class="p">,</span><span class="s1">&#39;nnUNet&#39;</span><span class="p">,</span><span class="s1">&#39;RESULTS_FOLDER&#39;</span><span class="p">)</span>
+    <span class="n">nnunet_env</span><span class="p">[</span><span class="s1">&#39;nnUNet_raw_data_base&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmb_path</span><span class="p">,</span><span class="s1">&#39;nnUNet&#39;</span><span class="p">,</span><span class="s1">&#39;nnUNet_raw_data_base&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;mri_convert&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">],</span><span class="n">env</span><span class="o">=</span><span class="n">nnunet_env</span><span class="p">,</span><span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;WARNING: mri_convert not found. FreeSurfer has to be compiled for segmentation to work.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span><span class="n">subject</span><span class="p">,</span><span class="s1">&#39;mri&#39;</span><span class="p">,</span><span class="s1">&#39;orig.mgz&#39;</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">&#39;Could not locate subject MRI at &#39;</span><span class="o">+</span><span class="n">subjects_dir</span><span class="o">+</span><span class="n">subject</span><span class="o">+</span><span class="s1">&#39;/mri/orig.mgz&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;nnUNet_predict&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">],</span><span class="n">env</span><span class="o">=</span><span class="n">nnunet_env</span><span class="p">,</span><span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s1">&#39;nnUNet_predict not found. Please make sure nnUNet is installed and its environment activated and try again.&#39;</span><span class="p">)</span>
+        
+
+    <span class="n">rel_paths</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;whole&#39;</span><span class="p">,</span> <span class="s1">&#39;lh&#39;</span><span class="p">,</span> <span class="s1">&#39;rh&#39;</span><span class="p">,</span> <span class="s1">&#39;mask&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;lh_segmented&#39;</span><span class="p">,</span> <span class="s1">&#39;rh_segmented&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;lob_I_IV&#39;</span><span class="p">,</span> <span class="s1">&#39;lob_I_IV_segmented&#39;</span><span class="p">,</span> <span class="s1">&#39;mask_divide&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="n">rel_paths</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s1">&#39;tmp&#39;</span><span class="p">,</span> <span class="s1">&#39;registered&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">output_folder</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span><span class="s1">&#39;tmp&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    
+    <span class="n">orig_fname</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subjects_dir</span><span class="p">,</span><span class="n">subject</span><span class="p">,</span><span class="s1">&#39;mri&#39;</span><span class="p">,</span><span class="s1">&#39;brain.mgz&#39;</span><span class="p">)</span>
+    <span class="n">orig_registered_fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_folder</span><span class="si">}</span><span class="s1">registered/whole/</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s1">_0000.nii.gz&#39;</span>
+
+    <span class="c1"># Load brain template to get a common space</span>
+    <span class="n">brain_template_nib</span> <span class="o">=</span> <span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmb_path</span><span class="p">,</span><span class="s1">&#39;data&#39;</span><span class="p">,</span><span class="s1">&#39;brain.nii&#39;</span><span class="p">))</span>
+    <span class="n">brain_template</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">brain_template_nib</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span>
+    <span class="n">brain_template</span> <span class="o">=</span> <span class="n">brain_template</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">brain_template</span><span class="p">)</span>
+    <span class="n">template_ants</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">brain_template</span><span class="p">)</span>
+
+    <span class="c1"># Register</span>
+    
+    <span class="n">subject_mri</span> <span class="o">=</span> <span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">orig_fname</span><span class="p">)</span>
+    <span class="n">subj_brain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">subject_mri</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span>
+    <span class="n">subj_brain</span> <span class="o">=</span> <span class="n">subj_brain</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">subj_brain</span><span class="p">)</span>
+    
+    <span class="c1"># Find registration from subject to common space</span>
+    <span class="n">subj_ants</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">subj_brain</span><span class="p">)</span>
+    
+    <span class="c1"># Calculate registration </span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">registration</span><span class="p">(</span><span class="n">fixed</span><span class="o">=</span><span class="n">template_ants</span><span class="p">,</span> <span class="n">moving</span><span class="o">=</span><span class="n">subj_ants</span><span class="p">,</span> <span class="n">type_of_transform</span><span class="o">=</span><span class="s1">&#39;SyNCC&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Prepare for masking</span>
+    <span class="n">subj_reg_ants</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">apply_transforms</span><span class="p">(</span><span class="n">fixed</span><span class="o">=</span><span class="n">template_ants</span><span class="p">,</span> <span class="n">moving</span><span class="o">=</span><span class="n">subj_ants</span><span class="p">,</span>
+                                            <span class="n">transformlist</span><span class="o">=</span><span class="n">reg</span><span class="p">[</span><span class="s1">&#39;fwdtransforms&#39;</span><span class="p">],</span>
+                                            <span class="n">interpolator</span><span class="o">=</span><span class="s1">&#39;nearestNeighbor&#39;</span><span class="p">)</span>
+    <span class="n">subj_reg</span> <span class="o">=</span> <span class="n">subj_reg_ants</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    <span class="n">save_nifti_from_3darray</span><span class="p">(</span><span class="n">subj_reg</span><span class="p">,</span> <span class="n">orig_registered_fname</span><span class="p">,</span>
+                            <span class="n">affine</span><span class="o">=</span><span class="n">brain_template_nib</span><span class="o">.</span><span class="n">affine</span><span class="p">)</span>
+    
+    <span class="c1"># Mask</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;nnUNet_predict&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_folder</span><span class="si">}</span><span class="s1">registered/whole/&#39;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_folder</span><span class="si">}</span><span class="s1">registered/mask/&#39;</span><span class="p">,</span> <span class="s2">&quot;-tr&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetTrainerV2&quot;</span><span class="p">,</span> <span class="s2">&quot;-ctr&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetTrainerV2CascadeFullRes&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;3d_fullres&quot;</span><span class="p">,</span> <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetPlansv2.1&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;001&quot;</span><span class="p">],</span><span class="n">env</span><span class="o">=</span><span class="n">nnunet_env</span><span class="p">)</span>
+
+    <span class="c1"># Split into LH and RH using ASEG</span>
+    <span class="n">aseg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">subjects_dir</span> <span class="o">+</span> <span class="n">subject</span> <span class="o">+</span> <span class="s1">&#39;/mri/aseg.mgz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+    <span class="n">aseg</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">aseg</span><span class="p">)</span>
+    <span class="n">aseg_reg</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">apply_transforms</span><span class="p">(</span><span class="n">fixed</span><span class="o">=</span><span class="n">template_ants</span><span class="p">,</span> <span class="n">moving</span><span class="o">=</span><span class="n">aseg</span><span class="p">,</span> <span class="n">transformlist</span><span class="o">=</span><span class="n">reg</span><span class="p">[</span><span class="s1">&#39;fwdtransforms&#39;</span><span class="p">],</span>
+                                        <span class="n">interpolator</span><span class="o">=</span><span class="s1">&#39;genericLabel&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output_folder</span> <span class="o">+</span> <span class="s1">&#39;registered/mask/&#39;</span> <span class="o">+</span> <span class="n">subject</span> <span class="o">+</span> <span class="s1">&#39;.nii.gz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span>
+    <span class="n">split_cerebellar_hemis_aseg</span><span class="p">(</span><span class="n">aseg_reg</span><span class="p">,</span> <span class="n">subj_reg</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">output_folder</span> <span class="o">+</span> <span class="s1">&#39;registered/&#39;</span><span class="p">,</span>
+                                <span class="n">brain_template_nib</span><span class="o">.</span><span class="n">affine</span><span class="p">)</span>
+
+    <span class="c1"># Predict LH and RH</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;nnUNet_predict&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_folder</span><span class="si">}</span><span class="s1">registered/lh/&#39;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_folder</span><span class="si">}</span><span class="s1">registered/lh_segmented/&#39;</span><span class="p">,</span> <span class="s2">&quot;-tr&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetTrainerV2&quot;</span><span class="p">,</span> <span class="s2">&quot;-ctr&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetTrainerV2CascadeFullRes&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;3d_fullres&quot;</span><span class="p">,</span> <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetPlansv2.1&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;002&quot;</span><span class="p">],</span><span class="n">env</span><span class="o">=</span><span class="n">nnunet_env</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;nnUNet_predict&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_folder</span><span class="si">}</span><span class="s1">registered/rh/&#39;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_folder</span><span class="si">}</span><span class="s1">registered/rh_segmented/&#39;</span><span class="p">,</span> <span class="s2">&quot;-tr&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetTrainerV2&quot;</span><span class="p">,</span> <span class="s2">&quot;-ctr&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetTrainerV2CascadeFullRes&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;3d_fullres&quot;</span><span class="p">,</span> <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetPlansv2.1&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;003&quot;</span><span class="p">],</span><span class="n">env</span><span class="o">=</span><span class="n">nnunet_env</span><span class="p">)</span>
+    
+    <span class="c1"># Refine lob I-IV into lobs I-III and IV</span>
+    <span class="n">pred_nib</span> <span class="o">=</span> <span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output_folder</span> <span class="o">+</span> <span class="s1">&#39;registered/lh_segmented/&#39;</span> <span class="o">+</span> <span class="n">subject</span> <span class="o">+</span> <span class="s1">&#39;.nii.gz&#39;</span><span class="p">)</span>
+    <span class="n">vol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">pred_nib</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output_folder</span> <span class="o">+</span> <span class="s1">&#39;registered/lh/&#39;</span> <span class="o">+</span> <span class="n">subject</span> <span class="o">+</span> <span class="s1">&#39;_0000.nii.gz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span>
+    <span class="n">lobI_IV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">vol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">lobI_IV</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">vol</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">vol</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)]</span>
+    <span class="n">pred_nib</span> <span class="o">=</span> <span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output_folder</span> <span class="o">+</span> <span class="s1">&#39;registered/rh_segmented/&#39;</span> <span class="o">+</span> <span class="n">subject</span> <span class="o">+</span> <span class="s1">&#39;.nii.gz&#39;</span><span class="p">)</span>
+    <span class="n">vol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">pred_nib</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output_folder</span> <span class="o">+</span> <span class="s1">&#39;registered/rh/&#39;</span> <span class="o">+</span> <span class="n">subject</span> <span class="o">+</span> <span class="s1">&#39;_0000.nii.gz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span>
+    <span class="n">lobI_IV</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">vol</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">vol</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)]</span>
+    <span class="n">save_nifti_from_3darray</span><span class="p">(</span><span class="n">lobI_IV</span><span class="p">,</span> <span class="n">output_folder</span> <span class="o">+</span> <span class="s1">&#39;registered/lob_I_IV/&#39;</span> <span class="o">+</span> <span class="n">subject</span> <span class="o">+</span> <span class="s1">&#39;_0000.nii.gz&#39;</span><span class="p">,</span>
+                            <span class="n">rotate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">pred_nib</span><span class="o">.</span><span class="n">affine</span><span class="p">)</span>
+    
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;nnUNet_predict&quot;</span><span class="p">,</span> <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_folder</span><span class="si">}</span><span class="s1">registered/lob_I_IV/&#39;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output_folder</span><span class="si">}</span><span class="s1">registered/lob_I_IV_segmented/&#39;</span><span class="p">,</span> <span class="s2">&quot;-tr&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetTrainerV2&quot;</span><span class="p">,</span> <span class="s2">&quot;-ctr&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetTrainerV2CascadeFullRes&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;3d_fullres&quot;</span><span class="p">,</span> <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;nnUNetPlansv2.1&quot;</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;004&quot;</span><span class="p">],</span><span class="n">env</span><span class="o">=</span><span class="n">nnunet_env</span><span class="p">)</span>
+
+            
+    <span class="c1"># Correct labels</span>
+    <span class="n">old_labels_ant</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+    <span class="n">new_labels_ant</span> <span class="o">=</span> <span class="p">[</span><span class="mi">33</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">46</span><span class="p">]</span>
+    <span class="n">old_labels_hemi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span>
+    <span class="n">new_labels_lh</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">63</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="mi">74</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">93</span><span class="p">,</span> <span class="mi">103</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">100</span><span class="p">]</span>
+    <span class="n">new_labels_rh</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">76</span><span class="p">,</span> <span class="mi">77</span><span class="p">,</span> <span class="mi">78</span><span class="p">,</span> <span class="mi">86</span><span class="p">,</span> <span class="mi">87</span><span class="p">,</span> <span class="mi">96</span><span class="p">,</span> <span class="mi">106</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">100</span><span class="p">]</span>
+    
+    <span class="c1"># Assemble segmentations into one image</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output_folder</span> <span class="o">+</span> <span class="s1">&#39;registered/lh_segmented/&#39;</span> <span class="o">+</span> <span class="n">subject</span> <span class="o">+</span> <span class="s1">&#39;.nii.gz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+    <span class="n">seg_lh</span> <span class="o">=</span> <span class="n">change_labels</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">old_labels_hemi</span><span class="p">,</span> <span class="n">new_labels_lh</span><span class="p">)</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output_folder</span> <span class="o">+</span> <span class="s1">&#39;registered/rh_segmented/&#39;</span> <span class="o">+</span> <span class="n">subject</span> <span class="o">+</span> <span class="s1">&#39;.nii.gz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+    <span class="n">seg_rh</span> <span class="o">=</span> <span class="n">change_labels</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">old_labels_hemi</span><span class="p">,</span> <span class="n">new_labels_rh</span><span class="p">)</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">nib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">output_folder</span> <span class="o">+</span> <span class="s1">&#39;registered/lob_I_IV_segmented/&#39;</span> <span class="o">+</span> <span class="n">subject</span> <span class="o">+</span> <span class="s1">&#39;.nii.gz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dataobj</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+    <span class="n">seg_ant</span> <span class="o">=</span> <span class="n">change_labels</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">old_labels_ant</span><span class="p">,</span> <span class="n">new_labels_ant</span><span class="p">)</span>
+    <span class="n">seg_complete</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">seg_complete</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">seg_lh</span><span class="p">)]</span> <span class="o">=</span> <span class="n">seg_lh</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">seg_lh</span><span class="p">)]</span>
+    <span class="n">seg_complete</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">seg_rh</span><span class="p">)]</span> <span class="o">=</span> <span class="n">seg_rh</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">seg_rh</span><span class="p">)]</span>
+    <span class="n">seg_complete</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">seg_ant</span><span class="p">)]</span> <span class="o">=</span> <span class="n">seg_ant</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">seg_ant</span><span class="p">)]</span>
+    <span class="n">seg_ants</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">seg_complete</span><span class="p">)</span>
+
+    <span class="c1"># Go back to subject space</span>
+    <span class="n">seg_reg</span> <span class="o">=</span> <span class="n">ants</span><span class="o">.</span><span class="n">apply_transforms</span><span class="p">(</span><span class="n">fixed</span><span class="o">=</span><span class="n">template_ants</span><span class="p">,</span> <span class="n">moving</span><span class="o">=</span><span class="n">seg_ants</span><span class="p">,</span> <span class="n">transformlist</span><span class="o">=</span><span class="n">reg</span><span class="p">[</span><span class="s1">&#39;invtransforms&#39;</span><span class="p">],</span>
+                                        <span class="n">interpolator</span><span class="o">=</span><span class="s1">&#39;genericLabel&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+    
+    <span class="n">save_nifti_from_3darray</span><span class="p">(</span><span class="n">seg_reg</span><span class="p">,</span> <span class="n">cmb_fname</span><span class="p">,</span>
+                            <span class="n">rotate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">subject_mri</span><span class="o">.</span><span class="n">affine</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">debug_mode</span><span class="p">:</span>
+        <span class="n">tmp_folder</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span><span class="s1">&#39;tmp&#39;</span><span class="p">,</span><span class="s1">&#39;registered&#39;</span><span class="p">)</span>
+        <span class="n">file_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;*/*plans.pkl&#39;</span><span class="p">,</span><span class="s1">&#39;*/*postprocessing.json&#39;</span><span class="p">,</span><span class="s1">&#39;*/*.nii.gz&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">file_type</span> <span class="ow">in</span> <span class="n">file_types</span><span class="p">:</span>
+            <span class="n">tmp_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_folder</span><span class="p">,</span><span class="n">file_type</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">tmp</span> <span class="ow">in</span> <span class="n">tmp_files</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>  </div>
+
+
+                           
+
+<span class="k">def</span> <span class="nf">split_cerebellar_hemis_aseg</span><span class="p">(</span><span class="n">aseg</span><span class="p">,</span> <span class="n">brain</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="n">affine</span><span class="p">):</span>
+    <span class="n">mask_org</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">aseg</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="n">pads</span> <span class="o">=</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">aseg</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">mask_aligned</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">aseg</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">mask_aligned</span><span class="p">[</span><span class="n">pads</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">aseg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">pads</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pads</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">aseg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">pads</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                     <span class="n">pads</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">aseg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">-</span><span class="n">pads</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">mask</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">mask_aligned</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">mask</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">lh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">aseg</span><span class="p">,</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]))</span>
+    <span class="n">rh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">aseg</span><span class="p">,</span> <span class="p">[</span><span class="mi">46</span><span class="p">,</span> <span class="mi">47</span><span class="p">]))</span>
+    <span class="n">lh_rh_vol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">aseg</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">lh_rh_vol</span><span class="p">[</span><span class="n">lh</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">lh_rh_vol</span><span class="p">[</span><span class="n">rh</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">aseg_cerb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lh</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rh</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">aseg_ints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">aseg_cerb</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="o">**</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">mask_ints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="o">**</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">unsigned_voxels</span> <span class="o">=</span> <span class="n">mask</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mask_ints</span><span class="p">,</span> <span class="n">aseg_ints</span><span class="p">))]</span>
+    <span class="n">neighbors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">27</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+    
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">unsigned_voxels</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">assigned</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unsigned_voxels</span><span class="p">))</span>
+        <span class="n">type_vals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">vox</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unsigned_voxels</span><span class="p">):</span>
+            <span class="n">all_neighbors</span> <span class="o">=</span> <span class="n">neighbors</span><span class="o">+</span><span class="n">vox</span>
+            <span class="n">all_neighbors</span> <span class="o">=</span> <span class="n">all_neighbors</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">all_neighbors</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lh_rh_vol</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">all_neighbors</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+            <span class="n">val_neighbors</span> <span class="o">=</span> <span class="n">lh_rh_vol</span><span class="p">[</span><span class="n">all_neighbors</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">all_neighbors</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">all_neighbors</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]]</span>
+            <span class="n">val_neighbors</span> <span class="o">=</span> <span class="n">val_neighbors</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">val_neighbors</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)]</span> <span class="c1"># Remove background</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_neighbors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">val_neighbors</span><span class="p">)</span>
+                <span class="n">type_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+                <span class="n">type_vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">type_val</span><span class="p">)</span>
+                <span class="n">assigned</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">vox_to_assign</span> <span class="o">=</span> <span class="n">unsigned_voxels</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">assigned</span><span class="p">)]</span>
+        <span class="n">lh_rh_vol</span><span class="p">[</span><span class="n">vox_to_assign</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">vox_to_assign</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">vox_to_assign</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">type_vals</span>
+        <span class="n">unsigned_voxels</span> <span class="o">=</span> <span class="n">unsigned_voxels</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">assigned</span><span class="o">==</span><span class="mi">0</span><span class="p">)]</span>
+
+    <span class="n">final_split</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">lh_rh_vol</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">final_split</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">mask_org</span><span class="p">)]</span> <span class="o">=</span> <span class="n">lh_rh_vol</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">mask_org</span><span class="p">)]</span>
+    <span class="n">lh_split</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">brain</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">lh_split</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">final_split</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">brain</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">final_split</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">rh_split</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">brain</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">rh_split</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">final_split</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">brain</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">final_split</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)]</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">brain</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="c1">#.astype(int)</span>
+    <span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">final_split</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">final_split</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">save_nifti_from_3darray</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">output_folder</span><span class="o">+</span><span class="s1">&#39;/mask_divide/&#39;</span><span class="o">+</span><span class="n">subject</span><span class="o">+</span><span class="s1">&#39;_mask_lh_rh.nii.gz&#39;</span><span class="p">,</span> <span class="n">rotate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+    <span class="n">save_nifti_from_3darray</span><span class="p">(</span><span class="n">lh_split</span><span class="p">,</span> <span class="n">output_folder</span><span class="o">+</span><span class="s1">&#39;/lh/&#39;</span><span class="o">+</span><span class="n">subject</span><span class="o">+</span><span class="s1">&#39;_0000.nii.gz&#39;</span><span class="p">,</span> <span class="n">rotate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+    <span class="n">save_nifti_from_3darray</span><span class="p">(</span><span class="n">rh_split</span><span class="p">,</span> <span class="n">output_folder</span><span class="o">+</span><span class="s1">&#39;/rh/&#39;</span><span class="o">+</span><span class="n">subject</span><span class="o">+</span><span class="s1">&#39;_0000.nii.gz&#39;</span><span class="p">,</span> <span class="n">rotate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+    
+    <span class="k">return</span>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2023, John Samuelsson.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.2.6.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
