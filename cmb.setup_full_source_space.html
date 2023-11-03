@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API &#8212; Cere-MEG-Bellum  documentation</title>
+    <title>cmb.setup_full_source_space &#8212; Cere-MEG-Bellum  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css?v=9afac83c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -50,7 +50,7 @@
           <ul class="nav navbar-nav">
             
                 <li><a href="auto_examples/index.html">Examples</a></li>
-                <li><a href="#">API</a></li>
+                <li><a href="api.html">API</a></li>
                 <li><a href="https://github.com/ceremegbellum/cmb/">GitHub</a></li>
             
             
@@ -74,10 +74,8 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">API</a><ul>
-<li><a class="reference internal" href="#loading-data">Loading Data</a></li>
-<li><a class="reference internal" href="#processing">Processing</a></li>
-<li><a class="reference internal" href="#visualization">Visualization</a></li>
+<li><a class="reference internal" href="#">cmb.setup_full_source_space</a><ul>
+<li><a class="reference internal" href="#cmb.setup_full_source_space"><code class="docutils literal notranslate"><span class="pre">setup_full_source_space()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -91,7 +89,7 @@
             
               <li class="hidden-sm">
 <div id="sourcelink">
-  <a href="_sources/api.rst.txt"
+  <a href="_sources/cmb.setup_full_source_space.rst.txt"
      rel="nofollow">Source</a>
 </div></li>
             
@@ -115,45 +113,44 @@
   <div class="row">
     <div class="body col-md-12 content" role="main">
       
-  <section id="api">
-<h1>API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h1>
-<section id="loading-data">
-<h2>Loading Data<a class="headerlink" href="#loading-data" title="Link to this heading">¶</a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="cmb.get_cerebellum_data.html#cmb.get_cerebellum_data" title="cmb.get_cerebellum_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cerebellum_data</span></code></a>(cmb_path)</p></td>
-<td><p>Checks if the required cerebellum data are available and download if not.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="processing">
-<h2>Processing<a class="headerlink" href="#processing" title="Link to this heading">¶</a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="cmb.setup_full_source_space.html#cmb.setup_full_source_space" title="cmb.setup_full_source_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_full_source_space</span></code></a>(subject, ...[, ...])</p></td>
-<td><p>Sets up a full surface source space where the first element in the list  is the combined cerebral hemishperic source space and the second element is the cerebellar source space.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="cmb.segmentation.segment_cerebellum.html#cmb.segmentation.segment_cerebellum" title="cmb.segmentation.segment_cerebellum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment_cerebellum</span></code></a>(subjects_dir, subject, ...)</p></td>
-<td><p>Creates segmentation of the cerebellar volume using the nnUnet package.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="visualization">
-<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading">¶</a></h2>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="cmb.plot_cerebellum_data.html#cmb.plot_cerebellum_data" title="cmb.plot_cerebellum_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_cerebellum_data</span></code></a>(data, fwd_src, org_src, ...)</p></td>
-<td><p>Plots data on the cerebellar cortical surface.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
+  <section id="cmb-setup-full-source-space">
+<h1>cmb.setup_full_source_space<a class="headerlink" href="#cmb-setup-full-source-space" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="cmb.setup_full_source_space">
+<span class="sig-prename descclassname"><span class="pre">cmb.</span></span><span class="sig-name descname"><span class="pre">setup_full_source_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subjects_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cerb_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cerb_subsampling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sparse'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'oct6'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_cerebellum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/cmb/source_space.html#setup_full_source_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cmb.setup_full_source_space" title="Link to this definition">¶</a></dt>
+<dd><p>Sets up a full surface source space where the first element in the list 
+is the combined cerebral hemishperic source space and the second element
+is the cerebellar source space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>subject</strong><span class="classifier">str</span></dt><dd><p>Subject name.</p>
+</dd>
+<dt><strong>subjects_dir</strong><span class="classifier">str</span></dt><dd><p>Subjects directory.</p>
+</dd>
+<dt><strong>cerb_dir</strong><span class="classifier">str</span></dt><dd><p>Path to cerebellum folder.</p>
+</dd>
+<dt><strong>plot_cerebellum</strong><span class="classifier">Boolean</span></dt><dd><p>If True, will plot sagittal cross-sectional plots of the cerebellar
+source space superposed on subject MR data.</p>
+</dd>
+<dt><strong>spacing</strong><span class="classifier">str</span></dt><dd><p>The spacing to use for cortex. Can be <code class="docutils literal notranslate"><span class="pre">'ico#'</span></code> for a recursively subdivided
+icosahedron, <code class="docutils literal notranslate"><span class="pre">'oct#'</span></code> for a recursively subdivided octahedron,
+or <code class="docutils literal notranslate"><span class="pre">'all'</span></code> for all points.</p>
+</dd>
+<dt><strong>cerb_subsampling</strong><span class="classifier">‘full’ | ‘sparse’ | ‘dense’</span></dt><dd><p>The spacing to use for the cerebellum. Can be either full, sparse or dense.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>src_whole: list</dt><dd><p>List containing two source space elements: the cerebral cortex and the 
+cerebellar cortex.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 

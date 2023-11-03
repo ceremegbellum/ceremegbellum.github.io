@@ -1,0 +1,6 @@
+﻿cmb.setup\_full\_source\_space
+==============================
+
+.. currentmodule:: cmb
+
+.. autofunction:: setup_full_source_space

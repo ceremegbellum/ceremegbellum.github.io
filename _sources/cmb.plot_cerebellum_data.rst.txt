@@ -1,0 +1,6 @@
+﻿cmb.plot\_cerebellum\_data
+==========================
+
+.. currentmodule:: cmb
+
+.. autofunction:: plot_cerebellum_data

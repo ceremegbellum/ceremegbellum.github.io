@@ -1,0 +1,6 @@
+﻿cmb.segmentation.segment\_cerebellum
+====================================
+
+.. currentmodule:: cmb.segmentation
+
+.. autofunction:: segment_cerebellum

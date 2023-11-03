@@ -1,0 +1,6 @@
+﻿cmb.get\_cerebellum\_data
+=========================
+
+.. currentmodule:: cmb
+
+.. autofunction:: get_cerebellum_data
